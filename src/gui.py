@@ -69,10 +69,7 @@ class ProlabArayuz:
             "1300x900"
         )
 
-        # ========================================================
         # STYLE
-        # ========================================================
-
         self.stil = ttk.Style(
             self.ana_pencere
         )
@@ -132,11 +129,7 @@ class ProlabArayuz:
             ),
             rowheight=25
         )
-
-        # ========================================================
         # DATABASE
-        # ========================================================
-
         self.vt_ayarlari = (
             get_database_config()
         )
@@ -151,11 +144,7 @@ class ProlabArayuz:
         self.guncel_tablo_adi = ""
 
         self.arayuzu_kur()
-
-    # ============================================================
     # GUI
-    # ============================================================
-
     def arayuzu_kur(self):
 
         ana_panel = ttk.PanedWindow(
@@ -172,11 +161,7 @@ class ProlabArayuz:
                 5
             )
         )
-
-        # ========================================================
         # LEFT PANEL
-        # ========================================================
-
         sol_cerceve = ttk.LabelFrame(
             ana_panel,
             text=(
@@ -226,7 +211,6 @@ class ProlabArayuz:
             side=tk.LEFT,
             padx=5
         )
-
         # JSON Tree
         json_agac_cercevesi = ttk.Frame(
             sol_cerceve
@@ -297,11 +281,7 @@ class ProlabArayuz:
             0,
             weight=1
         )
-
-        # ========================================================
         # RIGHT PANEL
-        # ========================================================
-
         sag_cerceve = ttk.LabelFrame(
             ana_panel,
             text=(
@@ -367,7 +347,7 @@ class ProlabArayuz:
             side=tk.LEFT
         )
 
-        # SQL terminal
+        #SQL terminal
         self.sql_metni = tk.Text(
             sag_cerceve,
             height=5,
@@ -401,11 +381,7 @@ class ProlabArayuz:
             anchor="e",
             padx=5
         )
-
-        # ========================================================
         # DATAGRID
-        # ========================================================
-
         grid_cercevesi = ttk.Frame(
             sag_cerceve
         )
@@ -470,11 +446,7 @@ class ProlabArayuz:
             0,
             weight=1
         )
-
-        # ========================================================
         # LOG PANEL
-        # ========================================================
-
         log_cercevesi = ttk.LabelFrame(
             self.ana_pencere,
             text=(
@@ -542,11 +514,7 @@ class ProlabArayuz:
         )
 
         self.tablolari_yenile()
-
-    # ============================================================
     # JSON LOAD
-    # ============================================================
-
     def dosya_yukle(self):
 
         dosya_yolu = (
@@ -585,8 +553,8 @@ class ProlabArayuz:
                 temel_ad
             )[0]
 
-            # Dosya adında boşluk/tire vb. olsa bile
-            # güvenli root tablo adı oluşturulur.
+            #Dosya adında boşluk/tire vb. olsa bile
+            #güvenli root tablo adı oluşturulma
             self.guncel_tablo_adi = (
                 self.motor.identifier_duzelt(
                     ham_ad
@@ -627,11 +595,7 @@ class ProlabArayuz:
                 "JSON Hatası",
                 f"Dosya okunamadı:\n{hata}"
             )
-
-    # ============================================================
     # JSON TREE
-    # ============================================================
-
     def agaci_doldur(
         self,
         ebeveyn,
@@ -688,11 +652,7 @@ class ProlabArayuz:
                 "end",
                 text=f": {deger}"
             )
-
-    # ============================================================
     # DATABASE RESET
-    # ============================================================
-
     def veritabanini_sifirla(self):
 
         onay = messagebox.askyesno(
@@ -730,11 +690,7 @@ class ProlabArayuz:
                 f"Sıfırlama başarısız: "
                 f"{hata}"
             )
-
-    # ============================================================
     # MIGRATION
-    # ============================================================
-
     def donusumu_baslat(self):
 
         if (
@@ -752,8 +708,8 @@ class ProlabArayuz:
 
         try:
 
-            # Önceki JSON analizinin bellekte kalmasını engeller.
-            # DB tablolarına dokunmaz.
+            #Önceki JSON analizinin bellekte kalmasını engeller
+            #DB tablolarına dokunmaz.
             self.motor.clear_state()
 
             self.motor.process_data(
@@ -780,11 +736,7 @@ class ProlabArayuz:
                     hata
                 )
             )
-
-    # ============================================================
     # TABLE LIST
-    # ============================================================
-
     def tablolari_yenile(self):
 
         baglanti = None
@@ -854,10 +806,7 @@ class ProlabArayuz:
             if baglanti is not None:
                 baglanti.close()
 
-    # ============================================================
     # AUTOMATIC SELECT
-    # ============================================================
-
     def tablo_secildiginde(
         self,
         _olay=None
@@ -891,7 +840,7 @@ class ProlabArayuz:
                 **self.vt_ayarlari
             )
 
-            # Tablo adı artık doğrudan f-string ile SQL'e eklenmez.
+            #Tablo adı artık doğrudan f-string ile SQL'e eklenmiyor
             guvenli_sorgu = (
 
                 sql.SQL(
@@ -938,10 +887,7 @@ class ProlabArayuz:
             if baglanti is not None:
                 baglanti.close()
 
-    # ============================================================
     # GRID CLEAR
-    # ============================================================
-
     def _sonuc_gridini_temizle(self):
 
         self.sonuc_agaci.delete(
@@ -952,10 +898,7 @@ class ProlabArayuz:
             "columns"
         ] = ()
 
-    # ============================================================
-    # MANUAL SQL TERMINAL
-    # ============================================================
-
+    # MANUAL SQL TERMINAl
     def sorguyu_calistir(self):
 
         sorgu = (
@@ -1069,8 +1012,7 @@ class ProlabArayuz:
             if baglanti is not None:
                 baglanti.rollback()
 
-            # Hatalı sorgudan sonra eski başka tablonun
-            # satırlarını ekranda bırakma.
+            # Hatalı sorgudan sonra eski başka tablonun satırlarını ekranda bırakma.
             self._sonuc_gridini_temizle()
 
             messagebox.showerror(

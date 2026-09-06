@@ -18,11 +18,7 @@ class PostgreSQLConverterEngine:
 
         # Migration sırasında PostgreSQL'e aktarılacak kayıtlar.
         self.eklenecek_kayitlar = []
-
-    # ============================================================
-    # STATE MANAGEMENT
-    # ============================================================
-
+    #STATE MANAGEMENT
     def clear_state(self):
         """
         Bellekte tutulan analiz/migration durumunu temizler.
@@ -30,11 +26,7 @@ class PostgreSQLConverterEngine:
         """
         self.veritabani_semasi = {}
         self.eklenecek_kayitlar = []
-
-    # ============================================================
     # IDENTIFIER NORMALIZATION
-    # ============================================================
-
     def identifier_duzelt(self, deger):
         """
         JSON key veya tablo isimlerini güvenli PostgreSQL
@@ -51,14 +43,14 @@ class PostgreSQLConverterEngine:
 
         orijinal = str(deger).strip().lower()
 
-        # Harf/rakam/underscore dışındaki karakterleri "_" yap.
+        #Harf/rakam/underscore dışındaki karakterleri "_" yap.
         metin = re.sub(
             r"[^a-zA-Z0-9_]+",
             "_",
             orijinal
         )
 
-        # Birden fazla "_" karakterini teke indir.
+        #Birden fazla "_" karakterini teke indir.
         metin = re.sub(
             r"_+",
             "_",
@@ -67,16 +59,14 @@ class PostgreSQLConverterEngine:
 
         metin = metin.strip("_")
 
-        # Tamamen özel karakterlerden oluşan bir key gelirse.
+        #Tamamen özel karakterlerden oluşan bir key gelirse
         if not metin:
             metin = "field"
 
-        # PostgreSQL identifier rakamla başlamasın.
+        #PostgreSQL identifier rakamla başlamasın
         if metin[0].isdigit():
             metin = f"field_{metin}"
-
-        # PostgreSQL identifier limiti = 63 byte.
-        # Sanitizer ASCII karakter ürettiği için burada len yeterlidir.
+       
         if len(metin) > self.POSTGRES_IDENTIFIER_LIMIT:
 
             digest = hashlib.sha1(
@@ -95,9 +85,7 @@ class PostgreSQLConverterEngine:
 
         return metin
 
-    # ============================================================
-    # TYPE INFERENCE
-    # ============================================================
+ # TYPE INFERENCE
 
     def sql_tipi_belirle(self, deger):
         """
@@ -107,8 +95,8 @@ class PostgreSQLConverterEngine:
         if deger is None:
             return None
 
-        # Python bool, int'in subclass'ıdır.
-        # Bu nedenle bool kontrolü int'ten önce yapılmalıdır.
+        #Python bool, int'in subclass'ıdır.
+        #Bu nedenle bool kontrolü int'ten önce yapılmalıdır.
         if isinstance(deger, bool):
             return "BOOLEAN"
 
@@ -155,39 +143,16 @@ class PostgreSQLConverterEngine:
 
             return "NUMERIC"
 
-        # Heterojen değerlerde veri kaybı yaşamamak için TEXT.
+        #Heterojen değerlerde veri kaybı yaşamamak için TEXT.
         return "TEXT"
 
-    # ============================================================
     # JSON FLATTENING
-    # ============================================================
-
     def sozlugu_duzlestir(
         self,
         sozluk,
         ust_anahtar="",
         ayrac="_"
     ):
-        """
-        Nested object yapılarını düz kolonlara dönüştürür.
-
-        Örnek:
-
-        {
-            "address": {
-                "city": "Kocaeli",
-                "postal-code": "41000"
-            }
-        }
-
-        ->
-
-        address_city
-        address_postal_code
-
-        Listeler burada flatten edilmez.
-        Daha sonra child table olarak işlenir.
-        """
 
         ogeler = []
 
@@ -229,18 +194,14 @@ class PostgreSQLConverterEngine:
                 )
 
         return dict(ogeler)
-
-    # ============================================================
     # DATABASE RESET
-    # ============================================================
-
     def reset_database(self):
         """
         Dedicated proje veritabanındaki public schema'yı tamamen
         sıfırlar.
 
-        DİKKAT:
-        DROP SCHEMA public CASCADE çalıştırır.
+       
+        DROP SCHEMA public CASCADE çalıştırır
         GUI tarafında bu işlem öncesinde kullanıcı onayı alınır.
         """
 
@@ -267,11 +228,7 @@ class PostgreSQLConverterEngine:
                 print(
                     "[SİSTEM] Public schema yeniden oluşturuldu."
                 )
-
-    # ============================================================
     # JSON -> RELATIONAL MODEL
-    # ============================================================
-
     def process_data(
         self,
         tablo_adi,
@@ -306,11 +263,7 @@ class PostgreSQLConverterEngine:
             ust_tablo_adi = self.identifier_duzelt(
                 ust_tablo_adi
             )
-
-        # --------------------------------------------------------
         # LIST
-        # --------------------------------------------------------
-
         if isinstance(
             veri_sozlugu,
             list
@@ -320,7 +273,7 @@ class PostgreSQLConverterEngine:
 
             for eleman in veri_sozlugu:
 
-                # Primitive list elemanlarını da relational row yap.
+                #Primitive list elemanlarını da relational row yapma
                 if not isinstance(
                     eleman,
                     dict
@@ -344,7 +297,7 @@ class PostgreSQLConverterEngine:
 
             return son_id
 
-        # Primitive root veri gelirse dict'e sar.
+        #Primitive root veri gelirse dict'e sar.
         if not isinstance(
             veri_sozlugu,
             dict
@@ -353,11 +306,7 @@ class PostgreSQLConverterEngine:
             veri_sozlugu = {
                 "deger": veri_sozlugu
             }
-
-        # --------------------------------------------------------
         # FLATTEN
-        # --------------------------------------------------------
-
         duz_veri = self.sozlugu_duzlestir(
             veri_sozlugu
         )
@@ -365,11 +314,7 @@ class PostgreSQLConverterEngine:
         guncel_id = str(
             uuid.uuid4()
         )
-
-        # --------------------------------------------------------
         # TABLE SCHEMA
-        # --------------------------------------------------------
-
         if (
             tablo_adi
             not in self.veritabani_semasi
@@ -389,11 +334,7 @@ class PostgreSQLConverterEngine:
         satir_verisi = {
             "id_pk": guncel_id
         }
-
-        # --------------------------------------------------------
         # FOREIGN KEY METADATA
-        # --------------------------------------------------------
-
         if (
             ust_id is not None
             and yabanci_anahtar_adi is not None
@@ -433,21 +374,13 @@ class PostgreSQLConverterEngine:
             satir_verisi[
                 yabanci_anahtar_adi
             ] = ust_id
-
-        # --------------------------------------------------------
-        # FIELDS
-        # --------------------------------------------------------
-
+        #FIELDS
         for anahtar, deger in duz_veri.items():
 
             anahtar = self.identifier_duzelt(
                 anahtar
             )
-
-            # ----------------------------------------------------
-            # ARRAY -> CHILD TABLE
-            # ----------------------------------------------------
-
+            #ARRAY ->CHILD TABLE
             if isinstance(
                 deger,
                 list
@@ -492,11 +425,7 @@ class PostgreSQLConverterEngine:
                             tablo_adi
                         )
                     )
-
-            # ----------------------------------------------------
-            # NORMAL FIELD
-            # ----------------------------------------------------
-
+            #NORMAL FIELD
             else:
 
                 yeni_tip = (
@@ -530,7 +459,7 @@ class PostgreSQLConverterEngine:
                     anahtar
                 ] = deger
 
-        # Row belleğe eklenir.
+        #Row belleğe ekleme
         self.eklenecek_kayitlar.append(
             (
                 tablo_adi,
@@ -539,11 +468,7 @@ class PostgreSQLConverterEngine:
         )
 
         return guncel_id
-
-    # ============================================================
-    # VALUE NORMALIZATION BEFORE INSERT
-    # ============================================================
-
+    #VALUE NORMALIZATION BEFORE INSERT
     def _degeri_sql_icin_hazirla(
         self,
         tablo_adi,
@@ -561,9 +486,7 @@ class PostgreSQLConverterEngine:
                 sutun_adi
             )
         )
-
-        # Aynı kolonda heterojen tipler bulundu ve final tip TEXT
-        # olduysa, eski numeric/bool değerleri de text'e çevir.
+        #Aynı kolonda heterojen tipler bulundu ve final tip TEXT olduysa, eski numeric/bool değerleri de text'e çevir.
         if (
             hedef_tip == "TEXT"
             and not isinstance(
@@ -575,22 +498,9 @@ class PostgreSQLConverterEngine:
             return str(deger)
 
         return deger
-
-    # ============================================================
     # MIGRATION
-    # ============================================================
-
     def execute_migration(self):
-        """
-        Analiz edilmiş relational modeli PostgreSQL'e aktarır.
-
-        Tek transaction içerisinde:
-
-        1. CREATE TABLE
-        2. INSERT
-        3. FOREIGN KEY
-        """
-
+  
         if not self.veritabani_semasi:
 
             raise ValueError(
@@ -611,11 +521,7 @@ class PostgreSQLConverterEngine:
         imlec = baglanti.cursor()
 
         try:
-
-            # ====================================================
             # 1. CREATE TABLE
-            # ====================================================
-
             print(
                 "\n"
                 + "=" * 60
@@ -713,11 +619,7 @@ class PostgreSQLConverterEngine:
                 imlec.execute(
                     olusturma_sorgusu
                 )
-
-            # ====================================================
             # 2. INSERT
-            # ====================================================
-
             print(
                 "\n"
                 + "=" * 60
@@ -728,11 +630,8 @@ class PostgreSQLConverterEngine:
                 "VERİLERİN İLİŞKİSEL AKTARIMI"
             )
 
-            # Recursive analiz sırasında child kayıtlar belleğe
-            # parent'tan önce eklenebilir.
-            #
-            # FK constraintleri INSERT'lerden sonra eklense de,
-            # debug/log çıktısının daha doğal görünmesi için
+            # Recursive analiz sırasında child kayıtlar belleğe parent'tan önce eklenebilir.
+            # FK constraintleri INSERT'lerden sonra eklense de,debug/log çıktısının daha doğal görünmesi için
             # kayıtları ters sırada geziyoruz.
 
             for (
@@ -811,11 +710,7 @@ class PostgreSQLConverterEngine:
                     ekleme_sorgusu,
                     degerler
                 )
-
-            # ====================================================
             # 3. FOREIGN KEYS
-            # ====================================================
-
             print(
                 "\n"
                 + "=" * 60
@@ -857,7 +752,7 @@ class PostgreSQLConverterEngine:
                         )
                     )
 
-                    # Aynı constraint bu tablo üzerinde zaten var mı?
+                    #Aynı constraint bu tablo üzerinde zaten var mı kontrolü
                     imlec.execute(
                         """
                         SELECT 1
@@ -898,11 +793,9 @@ class PostgreSQLConverterEngine:
                             sql.Identifier(
                                 tablo_adi
                             ),
-
                             sql.Identifier(
                                 constraint_adi
                             ),
-
                             sql.Identifier(
                                 ya_sutunu
                             ),

@@ -14,7 +14,7 @@ from parser_engine import PostgreSQLConverterEngine
 
 @pytest.fixture
 def engine():
-    # Bu unit testlerde gerçek PostgreSQL bağlantısı kullanılmıyor.
+    #Bu unit testlerde gerçek PostgreSQL bağlantısı kullanılmıyor sorun yok
     return PostgreSQLConverterEngine(
         {
             "dbname": "test",
