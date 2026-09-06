@@ -1,0 +1,39 @@
+{
+  "customer data": {
+    "name": "Ahmet",
+    "age": 21,
+    "active": true,
+    "shipping address": {
+      "city": "Kocaeli",
+      "postal-code": "41000"
+    },
+    "orders": [
+      {
+        "order id": 1001,
+        "total": 249.9,
+        "select": "completed",
+        "items": [
+          {
+            "product-name": "Keyboard",
+            "quantity": 1
+          },
+          {
+            "product-name": "Mouse",
+            "quantity": 2
+          }
+        ]
+      },
+      {
+        "order id": 1002,
+        "total": 99.5,
+        "select": "pending",
+        "items": [
+          {
+            "product-name": "USB Cable",
+            "quantity": 3
+          }
+        ]
+      }
+    ]
+  }
+}

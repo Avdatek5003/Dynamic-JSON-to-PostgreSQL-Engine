@@ -1,0 +1,31 @@
+{
+  "countries": [
+    {
+      "name": "Türkiye",
+      "code": "TR",
+      "capital": "Ankara",
+      "population": 85372377,
+      "area_km2": 783562,
+      "eu_member": false,
+      "currency": "TRY"
+    },
+    {
+      "name": "Germany",
+      "code": "DE",
+      "capital": "Berlin",
+      "population": 84482267,
+      "area_km2": 357588,
+      "eu_member": true,
+      "currency": "EUR"
+    },
+    {
+      "name": "Netherlands",
+      "code": "NL",
+      "capital": "Amsterdam",
+      "population": 17900000,
+      "area_km2": 41865,
+      "eu_member": true,
+      "currency": "EUR"
+    }
+  ]
+}
